@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage — A Proposal for Bindable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f1117;
+    --ink2: #3a3d4a;
+    --ink3: #6b6f7c;
+    --rule: #e2e4ea;
+    --rule2: #c8cad2;
+    --sage: #3d6b5e;
+    --sage-light: #eef4f2;
+    --sage-mid: #7aab9b;
+    --sage-dark: #2a4d43;
+    --gold: #b8924a;
+    --gold-light: #faf4ea;
+    --amber: #c97b2a;
+    --red: #b03a2a;
+    --red-light: #fdf0ee;
+    --page: #fafaf8;
+    --white: #ffffff;
+  }
+
+  html { font-size: 16px; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--page); color: var(--ink); }
+
+  .page { max-width: 880px; margin: 0 auto; padding: 64px 52px 80px; }
+
+  /* ── HEADER ── */
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 24px;
+    padding-bottom: 32px;
+    border-bottom: 1.5px solid var(--ink);
+    margin-bottom: 52px;
+  }
+  .logo-name { font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 900; letter-spacing: -1px; color: var(--ink); line-height: 1; }
+  .logo-name span { color: var(--sage); }
+  .logo-tagline { font-size: 12px; font-weight: 400; color: var(--ink3); letter-spacing: 0.13em; text-transform: uppercase; margin-top: 7px; }
+  .header-meta { text-align: right; padding-top: 4px; }
+  .header-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--ink3); margin-bottom: 3px; }
+  .header-label + .header-label { margin-top: 10px; }
+  .header-val { font-size: 13px; font-weight: 500; color: var(--ink2); margin-bottom: 2px; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 50px; }
+  .section-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage); margin-bottom: 12px; font-weight: 500; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1.25; margin-bottom: 14px; }
+  .section-body { font-size: 15px; line-height: 1.78; color: var(--ink2); }
+  .divider { border: none; border-top: 1px solid var(--rule); margin: 44px 0; }
+
+  /* ── PULL QUOTE ── */
+  .pull { border-left: 3px solid var(--sage); padding: 15px 22px; margin: 26px 0; background: var(--sage-light); border-radius: 0 6px 6px 0; }
+  .pull p { font-family: 'Playfair Display', serif; font-size: 17.5px; font-weight: 400; color: var(--sage-dark); line-height: 1.55; font-style: italic; }
+
+  /* ── DATA ROW ── */
+  .data-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin: 26px 0; }
+  .data-cell { background: var(--white); padding: 20px 18px; }
+  .data-num { font-family: 'DM Mono', monospace; font-size: 21px; font-weight: 500; color: var(--ink); line-height: 1; margin-bottom: 5px; }
+  .data-num.sage { color: var(--sage); }
+  .data-num.gold { color: var(--gold); }
+  .data-label { font-size: 11px; color: var(--ink3); line-height: 1.45; }
+
+  /* ── CARRIER TABLE ── */
+  .carrier-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13px; }
+  .carrier-table thead tr { border-bottom: 1.5px solid var(--ink); }
+  .carrier-table thead th { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); padding: 0 10px 10px; text-align: left; font-weight: 500; }
+  .carrier-table thead th:not(:first-child) { text-align: right; }
+  .carrier-table tbody tr { border-bottom: 1px solid var(--rule); }
+  .carrier-table tbody tr:last-child { border-bottom: none; }
+  .carrier-table tbody td { padding: 9px 10px; color: var(--ink2); vertical-align: middle; }
+  .carrier-table tbody td:not(:first-child) { text-align: right; font-family: 'DM Mono', monospace; font-size: 12px; }
+  .carrier-table tbody td.cn { font-weight: 500; color: var(--ink); }
+  .tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 500; letter-spacing: 0.04em; }
+  .tag-fast { background: #e4f2ec; color: #28634a; }
+  .tag-slow { background: #fdf0e6; color: #8a5a2a; }
+
+  /* ── TWO COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 22px 0; }
+  .col-card { background: var(--white); border: 1px solid var(--rule); border-radius: 8px; padding: 20px 22px; }
+  .col-card.sage-border { border-color: #b3cfc9; }
+  .col-card-title { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; font-weight: 500; }
+  .col-card-title.sage { color: var(--sage); }
+  .col-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .col-card ul li { font-size: 13px; color: var(--ink2); line-height: 1.55; padding-left: 16px; position: relative; }
+  .col-card ul li::before { content: '—'; position: absolute; left: 0; color: var(--sage-mid); font-size: 11px; top: 2px; }
+
+  /* ── INSIGHT ── */
+  .insight { display: flex; gap: 14px; padding: 16px 18px; background: var(--gold-light); border: 1px solid #e8d5b0; border-radius: 8px; margin: 22px 0; align-items: flex-start; }
+  .insight-icon { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--gold); flex-shrink: 0; padding-top: 1px; }
+  .insight-text { font-size: 13.5px; color: var(--ink2); line-height: 1.62; }
+  .insight-text strong { color: var(--gold); font-weight: 500; }
+
+  /* ── FUNNEL GAP SECTION ── */
+  .gap-banner {
+    background: var(--red-light);
+    border: 1px solid #e8c4be;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 22px 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+  .gap-stat { text-align: center; padding-right: 20px; border-right: 1px solid #e0c0bc; }
+  .gap-stat-num { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 500; color: var(--red); line-height: 1; }
+  .gap-stat-label { font-size: 11px; color: #8a4a42; margin-top: 4px; line-height: 1.4; }
+  .gap-body { font-size: 13.5px; color: var(--ink2); line-height: 1.65; }
+  .gap-body strong { color: var(--red); font-weight: 500; }
+
+  /* ── COMPARISON TABLE ── */
+  .comp-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 12.5px; }
+  .comp-table thead tr { border-bottom: 1.5px solid var(--ink); }
+  .comp-table thead th { font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase; color: var(--ink3); padding: 0 10px 10px; text-align: left; font-weight: 500; }
+  .comp-table tbody tr { border-bottom: 1px solid var(--rule); }
+  .comp-table tbody tr:last-child { border-bottom: none; }
+  .comp-table tbody tr.sage-row { background: #f0f7f5; }
+  .comp-table tbody td { padding: 9px 10px; color: var(--ink2); vertical-align: middle; }
+  .comp-table tbody td.platform { font-weight: 500; color: var(--ink); }
+  .comp-table tbody td.platform.sage { color: var(--sage); }
+  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 500; }
+  .b-green { background: #e3f2ea; color: #2a6b45; }
+  .b-amber { background: #fdf0e0; color: #8a5a20; }
+  .b-red { background: #fdecea; color: #8a2a22; }
+  .b-sage { background: #e4f0ed; color: #2d5e52; }
+  .comp-note { font-size: 10px; color: var(--ink3); font-style: italic; }
+
+  /* ── PHASE STRIP ── */
+  .phase-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin: 22px 0; }
+  .phase { background: var(--white); padding: 18px 20px; }
+  .phase-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--sage-mid); letter-spacing: 0.1em; margin-bottom: 6px; }
+  .phase-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 5px; line-height: 1.3; }
+  .phase-body { font-size: 11.5px; color: var(--ink3); line-height: 1.55; }
+
+  /* ── ASK BLOCK ── */
+  .ask-block { background: var(--sage); border-radius: 10px; padding: 36px 40px; margin: 32px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  .ask-eyebrow { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage-mid); margin-bottom: 10px; font-weight: 500; }
+  .ask-headline { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--white); line-height: 1.3; margin-bottom: 12px; }
+  .ask-body { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+  .ask-items { display: flex; flex-direction: column; gap: 14px; }
+  .ask-item { display: flex; align-items: flex-start; gap: 12px; }
+  .ask-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--sage-mid); flex-shrink: 0; padding-top: 2px; width: 20px; }
+  .ask-text { font-size: 13px; color: rgba(255,255,255,0.88); line-height: 1.55; }
+  .ask-text strong { color: var(--white); font-weight: 500; }
+
+  /* ── FOOTER ── */
+  .footer { border-top: 1px solid var(--rule); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; margin-top: 56px; }
+  .footer-brand { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink3); }
+  .footer-brand span { color: var(--sage); }
+  .footer-contact { font-size: 12px; color: var(--ink3); text-align: right; line-height: 1.65; }
+
+  .mt12 { margin-top: 12px; }
+  .source-note { font-size: 11px; color: #9a9da8; margin-top: -10px; font-style: italic; }
+
+  @media print { body { background: white; } .page { padding: 40px 48px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <div class="logo-name">S<span>age</span></div>
+      <div class="logo-tagline">Auto Insurance Intelligence Platform &nbsp;·&nbsp; A concept for discussion</div>
+    </div>
+    <div class="header-meta">
+      <div class="header-label">Presented to</div>
+      <div class="header-val">Bindable</div>
+      <div class="header-label">Presented by</div>
+      <div class="header-val">Raise My Coverage</div>
+      <div class="header-label">Date</div>
+      <div class="header-val">May 2026</div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: THE OPPORTUNITY -->
+  <section class="section">
+    <div class="section-label">The Opportunity</div>
+    <h2 class="section-title">Consumers don't lack quotes.<br>They lack the intelligence to act on them.</h2>
+    <p class="section-body">
+      The auto insurance shopping experience is structurally broken for consumers. They arrive at comparison sites, get bombarded with spam calls, receive quotes they can't contextualize, and leave more confused than when they started. The platforms that dominate — The Zebra, NerdWallet, Insurify — all optimize for lead monetization first and consumer understanding second. The result is an industry where trust is the scarcest resource.
+    </p>
+    <div class="pull">
+      <p>"Sage is built on a different premise: earn trust through genuine intelligence, then let the purchase follow naturally — with Bindable's quote engine as the seamless final step."</p>
+    </div>
+    <p class="section-body">
+      Sage is a carrier intelligence and consumer education platform that fully informs auto insurance decisions before presenting a quote path. It surfaces what consumers actually want to know — which carriers pay claims fastest, which raise rates after one minor accident, which perform best in their state — and then routes ready, educated buyers directly into a licensed quote flow powered by Bindable.
+    </p>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECTION 2: THE DATA WE HAVE -->
+  <section class="section">
+    <div class="section-label">The Foundation</div>
+    <h2 class="section-title">19 months of real transaction data.<br>The moat already exists.</h2>
+    <p class="section-body">
+      Most intelligence platforms spend years and millions acquiring the data to make carrier comparisons credible. Raise My Coverage's existing Bindable-powered operation has been generating that dataset since September 2024.
+    </p>
+
+    <div class="data-row">
+      <div class="data-cell">
+        <div class="data-num">2,943</div>
+        <div class="data-label">Consumer quotes processed Sep 2024 – May 2026</div>
+      </div>
+      <div class="data-cell">
+        <div class="data-num sage">897</div>
+        <div class="data-label">Policies bound across 15+ carriers</div>
+      </div>
+      <div class="data-cell">
+        <div class="data-num">$1.86M</div>
+        <div class="data-label">Total written premium tracked & logged</div>
+      </div>
+      <div class="data-cell">
+        <div class="data-num gold">26.2%</div>
+        <div class="data-label">"Too Expensive" exit rate — the #1 loss reason</div>
+      </div>
+    </div>
+
+    <p class="section-body">
+      The data already answers questions no comparison site can: Which carriers bind fastest in MA? Which command the highest premiums for the same consumer profile? Where are consumers walking away — and why? That last number — 26.2% exiting on price — is telling. Consumers aren't necessarily facing prices that are too high. They're facing prices they have no context to evaluate. That's an education gap, not a pricing gap. Sage closes it.
+    </p>
+
+    <div class="insight">
+      <div class="insight-icon">◆</div>
+      <div class="insight-text"><strong>The intelligence is already real:</strong> MAPFRE leads at 232 bound policies with a $2,741 avg premium and a 4.4-day bind time. Progressive follows at 222 policies at $2,065 avg and 6.4 days. National General averages 11 days to bind. Travelers closes in 3.1 days. No consumer comparison site publishes any of this. Sage would be built on data like this — and the dataset grows with every quote Bindable processes.</div>
+    </div>
+
+    <table class="carrier-table">
+      <thead>
+        <tr><th>Carrier</th><th>Policies Bound</th><th>Avg Premium</th><th>Avg Days to Bind</th><th>% of Book</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cn">MAPFRE</td><td>232</td><td>$2,741</td><td>4.4 &nbsp;<span class="tag tag-fast">Fast</span></td><td>25.9%</td></tr>
+        <tr><td class="cn">Progressive</td><td>222</td><td>$2,065</td><td>6.4</td><td>24.7%</td></tr>
+        <tr><td class="cn">Bristol West</td><td>124</td><td>$1,938</td><td>9.2</td><td>13.8%</td></tr>
+        <tr><td class="cn">National General</td><td>108</td><td>$1,913</td><td>11.0 &nbsp;<span class="tag tag-slow">Slower</span></td><td>12.0%</td></tr>
+        <tr><td class="cn">Travelers</td><td>46</td><td>$1,508</td><td>3.1 &nbsp;<span class="tag tag-fast">Fastest</span></td><td>5.1%</td></tr>
+        <tr><td class="cn">Embark General</td><td>19</td><td>$2,893</td><td>17.9 &nbsp;<span class="tag tag-slow">Slowest</span></td><td>2.1%</td></tr>
+      </tbody>
+    </table>
+    <p class="source-note">Source: Raise My Coverage / Bindable transaction data, Sep 2024 – May 2026. Massachusetts-weighted (78% of volume).</p>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECTION 3: THE FUNNEL GAP -->
+  <section class="section">
+    <div class="section-label">The Shared Problem</div>
+    <h2 class="section-title">The industry is losing most of the funnel before a quote is ever seen.</h2>
+    <p class="section-body">
+      Through detailed analysis of the current MLP quote flow against the four leading consumer comparison platforms, a clear and addressable gap emerges. This isn't a critique of Bindable's technology — it's a product positioning opportunity that Sage is specifically designed to solve, with Bindable's infrastructure at the center.
+    </p>
+
+    <div class="gap-banner">
+      <div class="gap-stat">
+        <div class="gap-stat-num">~79%</div>
+        <div class="gap-stat-label">of form visitors<br>never reach results</div>
+      </div>
+      <div class="gap-body">
+        Industry data shows only <strong>21% of consumers who start an insurance quote form complete it to results</strong>. The primary culprits: PII asked too early, form length perceived as excessive, and spam anxiety at the contact step. The best performers — Insurify at 25–30% view-to-results — achieve their edge almost entirely through progressive disclosure and explicit no-spam trust architecture. The MLP form, at 17 steps with PII at step 2, sits below the industry average on completion.
+      </div>
+    </div>
+
+    <table class="comp-table">
+      <thead>
+        <tr><th>Platform</th><th>Steps to results</th><th>PII placement</th><th>Spam risk</th><th>Trust rating</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="platform">Insurify</td><td>8–10</td><td>Mid-form</td>
+          <td><span class="badge b-green">Low</span></td>
+          <td><span class="badge b-green">4.7★ Trustpilot</span></td>
+        </tr>
+        <tr>
+          <td class="platform">Jerry</td><td>4–6</td><td>Mid-form / OCR scan</td>
+          <td><span class="badge b-green">Low</span></td>
+          <td><span class="badge b-green">4.6★ App Store</span></td>
+        </tr>
+        <tr>
+          <td class="platform">The Zebra</td><td>10–12</td><td>Mid-form</td>
+          <td><span class="badge b-green">Low</span></td>
+          <td><span class="badge b-green">4.5★ Trustpilot</span></td>
+        </tr>
+        <tr>
+          <td class="platform">EverQuote</td><td>6–8</td><td>Early</td>
+          <td><span class="badge b-red">Very High</span></td>
+          <td><span class="badge b-red">1.6★ Trustpilot</span></td>
+        </tr>
+        <tr>
+          <td class="platform">MLP / Bindable (current)</td><td>17</td><td>Step 2 — early</td>
+          <td><span class="badge b-amber">Medium</span></td>
+          <td><span class="badge b-amber">Unavailable</span></td>
+        </tr>
+        <tr class="sage-row">
+          <td class="platform sage">Sage + Bindable (proposed)</td><td>13</td><td>Step 3 — after intent</td>
+          <td><span class="badge b-sage">Low (by design)</span></td>
+          <td><span class="badge b-sage">Trust-first architecture</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="source-note">MLP analysis based on direct review of all 17 MyLifeProtected form screens. Competitor data from RMC funnel analysis, Trustpilot, and App Store, May 2026.</p>
+
+    <div class="insight mt12">
+      <div class="insight-icon">◆</div>
+      <div class="insight-text"><strong>The single biggest lever:</strong> Moving PII collection from step 2 to step 3 — after ZIP entry and coverage goal — is projected to recover 15–20% of mid-funnel drop. This one structural change, already built into the RAISE form prototype, is worth more than any design or copy optimization. Sage delivers consumers to the Bindable quote engine already warmed, educated, and intent-confirmed — arriving at a rate the current flow cannot achieve on its own.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+  <!-- SECTION 4: WHAT SAGE IS -->
+  <section class="section">
+    <div class="section-label">The Platform</div>
+    <h2 class="section-title">What Sage is — and where Bindable lives inside it.</h2>
+
+    <div class="two-col">
+      <div class="col-card">
+        <div class="col-card-title">01 — Carrier Intelligence Profiles</div>
+        <ul>
+          <li>Scored carrier pages: price, claims handling, bind speed, digital experience, regional strength</li>
+          <li>MA-first launch using real RMC/Bindable transaction data — not syndicated ratings</li>
+          <li>Head-to-head comparisons by driver profile: MAPFRE vs. Progressive vs. Travelers for a 35-year-old MA homeowner</li>
+          <li>Sourced from NAIC, DOI filings, AM Best, J.D. Power, and proprietary quote outcomes</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">02 — Consumer Education Engine</div>
+        <ul>
+          <li>Interactive tools: deductible sliders, coverage calculators, premium context benchmarks</li>
+          <li>Directly addresses the 26.2% "Too Expensive" loss: consumers get a frame of reference before they ever see a number</li>
+          <li>No spam, no data selling, no redirect maze — trust architecture built into the product contract</li>
+          <li>Consumers arrive at the quote step already knowing which carrier they want</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-card mt12">
+      <div class="col-card-title sage">03 — Quote Concierge, Exclusively Powered by Bindable</div>
+      <ul style="flex-direction:row;flex-wrap:wrap;gap:8px 32px;">
+        <li>Consumer selects a carrier after completing the education layer</li>
+        <li>Sage routes them into Bindable's quote and bind flow — pre-qualified, intent-confirmed, and carrier-matched</li>
+        <li>Optimized RAISE form (13 steps, deferred PII, trust architecture) replaces the MLP form for Sage traffic</li>
+        <li>Commission, CPL, and CPA economics preserved — and improved by higher-quality lead entry</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECTION 5: WHY THIS MATTERS FOR BINDABLE -->
+  <section class="section">
+    <div class="section-label">The Strategic Case for Bindable</div>
+    <h2 class="section-title">A proprietary distribution channel built on trust,<br>not arbitrage.</h2>
+    <p class="section-body">
+      Bindable's platform is already the quote and bind infrastructure the industry needs. Sage adds the pre-funnel layer the industry lacks: education, carrier intelligence, and purchase intent — delivered before a consumer touches a form. Bindable gains a channel that competes directly with The Zebra and Insurify on trust, not ad spend.
+    </p>
+
+    <div class="two-col">
+      <div class="col-card sage-border">
+        <div class="col-card-title sage">What Bindable gains</div>
+        <ul>
+          <li>A high-intent distribution channel: consumers arrive pre-educated and carrier-matched, not cold</li>
+          <li>Competitive positioning against The Zebra and Insurify on trust architecture — the clearest gap in the market</li>
+          <li>A data partnership enriching Bindable's own carrier analytics over time from every Sage-routed transaction</li>
+          <li>Proprietary consumer intelligence no syndicated data source can replicate</li>
+          <li>First-mover position in a new category before national players decide to build it</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <div class="col-card-title">What RMC brings</div>
+        <ul>
+          <li>19 months of real MA carrier performance data — already in hand</li>
+          <li>Licensed independent agency — can bind, not just refer</li>
+          <li>Active paid media operation with proven MA/TX acquisition economics</li>
+          <li>RAISE form prototype: 13-step, deferred PII, trust-first — already built</li>
+          <li>Consumer brand with editorial credibility, not a lead marketplace</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECTION 6: BUILD PATH -->
+  <section class="section">
+    <div class="section-label">Proposed Build Path</div>
+    <h2 class="section-title">Phased, capital-efficient, built on what already exists.</h2>
+
+    <div class="phase-strip">
+      <div class="phase">
+        <div class="phase-num">Phase 01 &nbsp;·&nbsp; 0–90 days</div>
+        <div class="phase-title">Carrier Intelligence MVP</div>
+        <div class="phase-body">Profile pages for top 7 MA carriers using existing RMC/Bindable data. Comparison engine. Basic scoring. MA-only. Static but fully defensible and publishable.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">Phase 02 &nbsp;·&nbsp; 3–9 months</div>
+        <div class="phase-title">Education + Optimized Quote Routing</div>
+        <div class="phase-body">Interactive consumer tools, deductible calculators, carrier fit scoring. RAISE form (13-step) replaces MLP flow for Sage traffic. Bindable API integration.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">Phase 03 &nbsp;·&nbsp; 9–18 months</div>
+        <div class="phase-title">AI Advisor + Geo Expansion</div>
+        <div class="phase-body">AI-powered carrier recommendation by driver profile. State expansion to TX, CT, NJ — aligning with RMC's licensed footprint and Bindable's carrier network.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7: THE ASK -->
+  <div class="ask-block">
+    <div>
+      <div class="ask-eyebrow">The Conversation We're Proposing</div>
+      <div class="ask-headline">Let's build the intelligence layer the industry doesn't have — together.</div>
+      <div class="ask-body">We're not asking Bindable to fund a startup. We're asking whether there's a strategic path where Bindable is the exclusive quote engine behind Sage — and where both organizations benefit from a consumer platform built on trust, not lead arbitrage.</div>
+    </div>
+    <div class="ask-items">
+      <div class="ask-item">
+        <div class="ask-num">01</div>
+        <div class="ask-text"><strong>Exclusive quote engine agreement</strong> — Bindable powers all quote and bind activity behind the Sage consumer experience.</div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">02</div>
+        <div class="ask-text"><strong>Optimized form architecture</strong> — RAISE form (13 steps, deferred PII) replaces MLP flow for Sage traffic, improving completion and lead quality for both parties.</div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">03</div>
+        <div class="ask-text"><strong>Data collaboration</strong> — existing RMC transaction data seeds carrier profiles; ongoing Sage transactions enrich Bindable's analytics over time.</div>
+      </div>
+      <div class="ask-item">
+        <div class="ask-num">04</div>
+        <div class="ask-text"><strong>Strategic structure TBD</strong> — revenue share, co-investment, preferred partner status, or white-label arrangement. Open to Bindable's preferred model.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">S<span>age</span> &nbsp;by Raise My Coverage</div>
+    <div class="footer-contact">
+      raisemycoverage.com &nbsp;·&nbsp; Licensed Independent Agency<br>
+      Confidential — For Discussion Purposes Only &nbsp;·&nbsp; May 2026
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
